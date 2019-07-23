@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>whatsapp_gray_50.png</file>
+        <file>whatsapp_gray_100.png</file>
+        <file>whatsapp_neon_96.png</file>
+        <file>whatsapp_neon_64.png</file>
+    </qresource>
+</RCC>
