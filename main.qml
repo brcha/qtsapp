@@ -43,6 +43,7 @@ Window {
             window.hasNotifications = false
             window.show()
             window.raise()
+            window.requestActivate()
         }
 
         menu: Menu {
@@ -65,7 +66,7 @@ Window {
             onPresentNotification: {
                 if (!window.active)
                     hasNotifications = true
-                sysTray.showMessage("Notification", notification)
+                sysTray.showMessage(notification.title, notification.message)
             }
 
             onDownloadRequested: download.accept()
