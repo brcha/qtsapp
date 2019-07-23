@@ -25,15 +25,31 @@ Window {
     height: 600
     title: qsTr("QtsApp")
 
+    property bool hasNotifications: false
+
     SystemTrayIcon {
         id: sysTray
         visible: true
-        icon.source: 'qrc:/whatsapp_gray_100.png'
+        icon.source: window.hasNotifications?'qrc:/whatsapp_neon_96.png':'qrc:/whatsapp_gray_100.png'
 
         onActivated: {
+            window.hasNotifications = false
             window.show()
             window.raise()
             window.requestActivate()
+        }
+
+        onMessageClicked: {
+            window.hasNotifications = false
+            window.show()
+            window.raise()
+        }
+
+        menu: Menu {
+            MenuItem {
+                text: qsTr("Quit")
+                onTriggered: Qt.quit()
+            }
         }
     }
 
@@ -41,20 +57,30 @@ Window {
         anchors.fill: parent
         url: 'https://web.whatsapp.com'
         profile: WebEngineProfile {
-            id: whatsappNotifications
             // Mimic Chrome because WhatsApp filters by useragent on server-side
-            httpUserAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+            httpUserAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
+            offTheRecord: false
+            storageName: 'QtsApp'
 
-            onPresentNotification: sysTray.showMessage("Notification", notification);
+            onPresentNotification: {
+                if (!window.active)
+                    hasNotifications = true
+                sysTray.showMessage("Notification", notification)
+            }
+
+            onDownloadRequested: download.accept()
         }
 
-        onFeaturePermissionRequested: featurePermissionReqHandler(securityOrigin, feature)
-
-        function featurePermissionReqHandler(securityOrigin, feature) {
+        onFeaturePermissionRequested: {
             if (feature === WebEngineView.Notifications)
-                grantFeaturePermission(securityOrigin, feature, true);
+                grantFeaturePermission(securityOrigin, feature, true)
             else
-                grantFeaturePermission(securityOrigin, feature, false);
+                grantFeaturePermission(securityOrigin, feature, false)
         }
+    }
+
+    onClosing: {
+        hide()
+        close.accepted = false
     }
 }
